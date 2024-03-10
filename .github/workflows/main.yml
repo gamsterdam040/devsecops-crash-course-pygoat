@@ -49,8 +49,3 @@ jobs:
           dockerhub-user: ${{ secrets.DOCKER_USER }}
           dockerhub-password: ${{ secrets.DOCKER_PW }}
           command: quickview,cves
-    
-
-          
-          docker scout quickview
-          docker scout cves
