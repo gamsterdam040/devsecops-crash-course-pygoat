@@ -8,27 +8,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with: 
-        python-version: '3.8'
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with: 
+          python-version: '3.8'
 
-    - name: Install Bandit
-      run: pip install bandit
+      - name: Install Bandit
+        run: pip install bandit
 
-    - name: Run Bandit Scan
-      run: bandit -ll -ii -r . -f json -o bandit-report.json 
-     
+      - name: Run Bandit Scan
+        run: bandit -ll -ii -r . -f json -o bandit-report.json
 
-    - name: Upload json to download
-      uses: actions/upload-artifact@v3
-      if: always()
-      with: 
-        name: bandit-findings
-        path: bandit-report.json
+      - name: Upload json to download
+        uses: actions/upload-artifact@v3
+        if: always()
+        with: 
+          name: bandit-findings
+          path: bandit-report.json
         
-      
-      
+  image_scan:
+    name: Build Image and Run Image Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build Docker Image 
+        run: docker build -f Dockerfile -t my-app:latest .
+
+      - name: Docker Scout Scan
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh -o install-scout.sh
+          sh install-scout.sh
+          docker scout quickview
+          docker scout cves
